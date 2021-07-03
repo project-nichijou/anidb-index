@@ -1,5 +1,6 @@
 # custom
 .vscode/
+cache/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

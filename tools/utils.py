@@ -14,20 +14,25 @@ def download_file(url, dir):
 	echo.clog(f'start downloading: {url} => {dir}')
 	try:
 		# define request headers
-		headers = {'Proxy-Connection':'keep-alive'}
+		headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36 Edg/91.0.864.59'}
 		# start and block request
 		r = requests.get(url, stream=True, headers=headers)
-		# obtain content length
-		length = int(r.headers['content-length'])
-		echo.clog(f'file size: {size_description(length)}')
 		# start writing
 		f = open(dir, 'wb+')
-		# show in progressbar
-		with click.progressbar(label="Downloading from remote: ", length=length) as bar:
+		try:
+			# obtain content length
+			length = int(r.headers['content-length'])
+			echo.clog(f'file size: {size_description(length)}')
+			# show in progressbar
+			with click.progressbar(label="Downloading from remote: ", length=length) as bar:
+				for chunk in r.iter_content(chunk_size = 512):
+					if chunk:
+						f.write(chunk)
+						bar.update(len(chunk))
+		except:
 			for chunk in r.iter_content(chunk_size = 512):
 				if chunk:
 					f.write(chunk)
-					bar.update(len(chunk))
 		echo.csuccess('Download Complete.')
 		f.close()
 	except Exception as err:
