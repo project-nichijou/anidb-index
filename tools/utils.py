@@ -1,3 +1,8 @@
+'''
+Codes in this file first appear in another project of mine.
+https://github.com/JeffersonQin/typexo-cli/blob/master/lib/utils.py
+'''
+
 import sys
 import requests
 import unicodedata
