@@ -3,10 +3,15 @@ import os
 import time
 import sys
 import traceback
+import gzip
 
 import settings
 from tools import utils
 from tools import echo
+
+
+file_dir = None
+
 
 @click.group()
 def cli():
@@ -26,9 +31,7 @@ def download(url: str, ignore_cache: bool):
 	else: download_url = url
 
 	try:
-		date = time.strftime("%Y-%m-%d", time.localtime())
-		file_name = f'{date}-index-db.xml.gz'
-		dir = f'./cache/{file_name}'
+		dir = get_cache_dir_today()
 		if not os.path.exists(dir) or ignore_cache:
 			utils.download_file(download_url, dir)
 		else:
@@ -39,6 +42,40 @@ def download(url: str, ignore_cache: bool):
 		echo.cexit('FAILED IN DOWNLOAD CLI')
 	finally:
 		echo.pop_subroutine()
+
+
+@cli.command()
+@click.pass_context
+def parse(ctx):
+	'''
+	download then save the parse and save the result into the database
+	'''
+	echo.push_subroutine(sys._getframe().f_code.co_name)
+
+	try:
+		# download section
+		echo.clog('start downloading ...')
+		ctx.invoke(download)
+		# unzip the cache file
+		dir = get_cache_dir_today()
+		f = gzip.open(dir, 'rb')
+		content = f.read().decode('utf-8')
+		echo.clog(content)
+	except Exception as err:
+		echo.cerr(f'error: {repr(err)}')
+		traceback.print_exc()
+		echo.cexit('FAILED IN PARSE CLI')
+	finally:
+		echo.pop_subroutine()
+
+
+def get_cache_dir_today():
+	global file_dir
+	if file_dir is not None: return file_dir
+	date = time.strftime("%Y-%m-%d", time.localtime())
+	file_name = f'{date}-index-db.xml.gz'
+	file_dir = f'./cache/{file_name}'
+	return file_dir
 
 
 if __name__ == '__main__':
