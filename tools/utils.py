@@ -9,8 +9,12 @@ import unicodedata
 import re
 import click
 import traceback
+import time
 
 from tools import echo
+from tools import utils
+from database.anidb_database import AniDBDatabase
+from database import database_settings as db_settings 
 
 
 def download_file(url, dir):
@@ -43,6 +47,16 @@ def download_file(url, dir):
 	except Exception as err:
 		echo.cerr(f'error: {repr(err)}')
 		traceback.print_exc()
+		db = AniDBDatabase(db_settings.CONFIG)
+		db.write(table='log', values={
+			'time': utils.get_time_str(),
+			'content': (
+				'exception caught in download_file. \n'
+				f' exception info: {repr(err)} \n'
+				f' traceback: \n'
+				f' {traceback.format_exc()}'
+			)
+		})
 		echo.cexit('DOWNLOAD FAILED')
 	finally:
 		echo.pop_subroutine()
@@ -85,3 +99,7 @@ def slugify(value, allow_unicode=True):
 		value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
 	value = re.sub(r'[^\w\s-]', '', value)
 	return re.sub(r'[-\s]+', '-', value).strip('-_')
+
+
+def get_time_str():
+	return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) 

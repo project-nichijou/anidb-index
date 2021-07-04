@@ -9,9 +9,11 @@ from xml.etree import ElementTree as ET
 import settings
 from tools import utils
 from tools import echo
-
+from database.anidb_database import AniDBDatabase
+from database import database_settings as db_settings 
 
 file_dir = None
+db = AniDBDatabase(db_settings.CONFIG)
 
 
 @click.group()
@@ -40,6 +42,15 @@ def download(url: str, ignore_cache: bool):
 	except Exception as err:
 		echo.cerr(f'error: {repr(err)}')
 		traceback.print_exc()
+		db.write(table='log', values={
+			'time': utils.get_time_str(),
+			'content': (
+				'exception caught in download cli. \n'
+				f' exception info: {repr(err)} \n'
+				f' traceback: \n'
+				f' {traceback.format_exc()}'
+			)
+		})
 		echo.cexit('FAILED IN DOWNLOAD CLI')
 	finally:
 		echo.pop_subroutine()
@@ -63,18 +74,30 @@ def parse(ctx):
 		content = f.read().decode('utf-8')
 		# parse xml contents
 		root = ET.fromstring(content)
-		for anime in root.findall('./anime'):
-			aid = anime.get('aid')
-			for title_element in anime.findall("./title"):
-				title = title_element.text
-				res = {
-					'aid': aid,
-					'title': title
-				}
-				
+		animes = root.findall('./anime')
+		with click.progressbar(label='Parsing animes: ', length=len(animes)) as bar:
+			for anime in animes:
+				aid = anime.get('aid')
+				for title in anime.findall("./title"):
+					name = title.text
+					res = {
+						'aid': aid,
+						'name': name
+					}
+					db.write('anidb_anime_name', values=res)
+				bar.update(1)
 	except Exception as err:
 		echo.cerr(f'error: {repr(err)}')
 		traceback.print_exc()
+		db.write(table='log', values={
+			'time': utils.get_time_str(),
+			'content': (
+				'exception caught in parse cli. \n'
+				f' exception info: {repr(err)} \n'
+				f' traceback: \n'
+				f' {traceback.format_exc()}'
+			)
+		})
 		echo.cexit('FAILED IN PARSE CLI')
 	finally:
 		echo.pop_subroutine()
