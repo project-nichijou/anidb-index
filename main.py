@@ -103,6 +103,18 @@ def parse(ctx):
 		echo.pop_subroutine()
 
 
+@cli.command()
+@click.option('--before', type=str, default=None, help='delete the loggings which are before the time in the database. default is None, which means delete all. data format: YYYY-MM-DD hh:mm:ss')
+def dellog(before: str):
+	'''
+	delete loggings in the database.
+	'''
+	if before == None:
+		db.del_log_all()
+	else:
+		db.del_log_till(before)
+
+
 def get_cache_dir_today():
 	global file_dir
 	if file_dir is not None: return file_dir
