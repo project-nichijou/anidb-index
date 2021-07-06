@@ -89,3 +89,7 @@ CREATE TABLE IF NOT EXISTS `log` (
 	`content`	LONGTEXT
 ) ENGINE=InnoDB CHARSET=utf8mb4
 ```
+
+## 关于`json_generator.py`
+
+其用于初始化`nichijou`私有数据库，谨慎使用。
