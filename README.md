@@ -1,3 +1,7 @@
+**REFACTORING IN PROGRESS, DO NOT USE**
+
+**正在重构，请勿使用**
+
 # 0x01 AniDB Index [Project Nichijou]
 
 本项目作为项目[Project Nichijou](https://github.com/project-nichijou)中的子项目，是[AniDB](anidb.net)的数据库标题索引，用于构建番剧数据库。完整内容详见: https://github.com/project-nichijou/intro
