@@ -3,6 +3,7 @@ Codes in this file first appear in another project of mine.
 https://github.com/JeffersonQin/typexo-cli/blob/master/lib/utils.py
 '''
 
+from common.utils.logger import format_log
 import sys
 import requests
 import unicodedata
@@ -14,7 +15,6 @@ import time
 from tools import echo
 from tools import utils
 from database.anidb_database import AniDBDatabase
-from database import database_settings as db_settings 
 
 
 def download_file(url, dir):
@@ -47,16 +47,17 @@ def download_file(url, dir):
 	except Exception as err:
 		echo.cerr(f'error: {repr(err)}')
 		traceback.print_exc()
-		db = AniDBDatabase(db_settings.CONFIG)
-		db.write(table='log', values={
-			'time': utils.get_time_str(),
-			'content': (
-				'exception caught in download_file. \n'
-				f' exception info: {repr(err)} \n'
-				f' traceback: \n'
-				f' {traceback.format_exc()}'
+		AniDBDatabase().log(
+			format_log(
+				info = 'exception caught in download_file',
+				exception = err,
+				traceback = traceback.format_exc(),
+				values = {
+					'url': url,
+					'dir': dir
+				}
 			)
-		})
+		)
 		echo.cexit('DOWNLOAD FAILED')
 	finally:
 		echo.pop_subroutine()

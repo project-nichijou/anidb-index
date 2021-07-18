@@ -1,3 +1,4 @@
+from common.utils.logger import format_log
 import click
 import os
 import time
@@ -10,10 +11,9 @@ import settings
 from tools import utils
 from tools import echo
 from database.anidb_database import AniDBDatabase
-from database import database_settings as db_settings 
 
 file_dir = None
-db = AniDBDatabase(db_settings.CONFIG)
+db = AniDBDatabase()
 
 
 @click.group()
@@ -42,15 +42,17 @@ def download(url: str, ignore_cache: bool):
 	except Exception as err:
 		echo.cerr(f'error: {repr(err)}')
 		traceback.print_exc()
-		db.write(table='log', values={
-			'time': utils.get_time_str(),
-			'content': (
-				'exception caught in download cli. \n'
-				f' exception info: {repr(err)} \n'
-				f' traceback: \n'
-				f' {traceback.format_exc()}'
+		db.log(
+			format_log(
+				info = 'exception caught in download cli.',
+				exception = err,
+				traceback = traceback.format_exc(),
+				values = {
+					'url': url,
+					'ignore_cache': ignore_cache
+				}
 			)
-		})
+		)
 		echo.cexit('FAILED IN DOWNLOAD CLI')
 	finally:
 		echo.pop_subroutine()
@@ -81,23 +83,21 @@ def parse(ctx):
 				for title in anime.findall("./title"):
 					name = title.text
 					res = {
-						'aid': aid,
+						'id': aid,
 						'name': name
 					}
-					db.write('anidb_anime_name', values=res)
+					db.write('anime_name', res)
 				bar.update(1)
 	except Exception as err:
 		echo.cerr(f'error: {repr(err)}')
 		traceback.print_exc()
-		db.write(table='log', values={
-			'time': utils.get_time_str(),
-			'content': (
-				'exception caught in parse cli. \n'
-				f' exception info: {repr(err)} \n'
-				f' traceback: \n'
-				f' {traceback.format_exc()}'
+		db.log(
+			format_log(
+				info = 'exception caught in parse cli.',
+				exception = err,
+				traceback = traceback.format_exc()
 			)
-		})
+		)
 		echo.cexit('FAILED IN PARSE CLI')
 	finally:
 		echo.pop_subroutine()
@@ -109,10 +109,7 @@ def dellog(before: str):
 	'''
 	delete loggings in the database.
 	'''
-	if before == None:
-		db.del_log_all()
-	else:
-		db.del_log_till(before)
+	db.delete_log(before)
 
 
 def get_cache_dir_today():
