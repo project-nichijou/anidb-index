@@ -11,7 +11,7 @@ res = {
 	'data': {}
 }
 
-sorted(db_res, key=lambda x: x['id'])
+db_res = sorted(db_res, key=lambda x: x['id'])
 id_arr = []
 inc_id = 0
 
