@@ -5,9 +5,9 @@
 
 # 介绍
 
-本项目作为项目[Project Nichijou](https://github.com/project-nichijou)中的子项目，是[AniDB](anidb.net)的数据库标题索引，用于构建番剧数据库。完整内容详见: https://github.com/project-nichijou/intro
+本项目作为项目[Project Nichijou](https://github.com/project-nichijou)中的子项目，是[AniDB](anidb.net)的数据库标题索引，用于构建番剧数据库。完整内容详见: https://project-nichijou.github.io/docs
 
-本项目根据[内部规范](https://github.com/project-nichijou/intro/blob/master/doc.md)，基于[内部框架](https://github.com/project-nichijou/spider-common)进行开发。
+本项目根据[内部规范](https://project-nichijou.github.io/docs/#/./server/anime-database/spider)，基于[内部框架](https://github.com/project-nichijou/spider-common)进行开发。
 
 本repo只包含：
 - 从[官方API](https://wiki.anidb.net/API)获取标题`XML`数据
